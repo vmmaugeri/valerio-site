@@ -25,7 +25,7 @@
 
   body {
     background-color: var(--paper);
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.035 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.065 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
     background-repeat: repeat;
     color: var(--ink);
     font-family: 'Raleway', -apple-system, sans-serif;
@@ -37,7 +37,26 @@
     padding: 48px 20px;
   }
 
+  .cursor-glow {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0;
+    background: radial-gradient(480px circle at var(--x, 50%) var(--y, 40%), rgba(110, 130, 89, 0.10), transparent 60%);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .cursor-glow { opacity: 1; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cursor-glow { display: none; }
+  }
+
   .page {
+    position: relative;
+    z-index: 1;
     width: 100%;
     max-width: 420px;
   }
@@ -79,8 +98,8 @@
   .bio a:focus-visible {
     color: var(--accent);
     text-decoration-color: var(--accent);
-    transform: translateX(2px) scale(1.03);
-    text-shadow: 0 3px 12px rgba(110, 130, 89, 0.3);
+    transform: translateX(1px) scale(1.015);
+    text-shadow: 0 2px 10px rgba(110, 130, 89, 0.22);
   }
 
   .links {
@@ -106,9 +125,9 @@
   a.row:hover,
   a.row:focus-visible {
     color: var(--accent);
-    padding-left: 6px;
-    transform: scale(1.015);
-    text-shadow: 0 3px 12px rgba(110, 130, 89, 0.25);
+    padding-left: 3px;
+    transform: scale(1.008);
+    text-shadow: 0 2px 10px rgba(110, 130, 89, 0.18);
   }
 
   a.row:focus-visible {
@@ -151,6 +170,8 @@
 </head>
 <body>
 
+<div class="cursor-glow"></div>
+
 <div class="page">
   <main>
     <h1>Valerio Marco Maugeri</h1>
@@ -180,6 +201,14 @@
     </nav>
   </main>
 </div>
+
+<script>
+  const glow = document.querySelector('.cursor-glow');
+  window.addEventListener('mousemove', (e) => {
+    glow.style.setProperty('--x', e.clientX + 'px');
+    glow.style.setProperty('--y', e.clientY + 'px');
+  });
+</script>
 
 </body>
 </html>
