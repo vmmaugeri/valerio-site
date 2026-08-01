@@ -37,22 +37,23 @@
     padding: 48px 20px;
   }
 
-  .cursor-shade {
+  .footprint {
     position: fixed;
-    inset: 0;
+    width: 9px;
+    height: 15px;
+    border-radius: 50% / 60% 60% 40% 40%;
+    background: rgba(51, 50, 46, 0.4);
+    mix-blend-mode: multiply;
     pointer-events: none;
     z-index: 0;
+    opacity: 0.85;
+    transform: rotate(var(--r, 0deg)) scale(1);
+    transition: opacity 1.3s ease, transform 1.3s ease;
+  }
+
+  .footprint.fade {
     opacity: 0;
-    mix-blend-mode: multiply;
-    background: radial-gradient(48px circle at var(--x, 50%) var(--y, 40%), rgba(51, 50, 46, 0.3), transparent 70%);
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    .cursor-shade { opacity: 1; }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .cursor-shade { display: none; }
+    transform: rotate(var(--r, 0deg)) scale(0.6);
   }
 
   .page {
@@ -171,8 +172,6 @@
 </head>
 <body>
 
-<div class="cursor-shade"></div>
-
 <div class="page">
   <main>
     <h1>Valerio Marco Maugeri</h1>
@@ -204,11 +203,49 @@
 </div>
 
 <script>
-  const shade = document.querySelector('.cursor-shade');
-  window.addEventListener('mousemove', (e) => {
-    shade.style.setProperty('--x', e.clientX + 'px');
-    shade.style.setProperty('--y', e.clientY + 'px');
-  });
+  const canWalk =
+    window.matchMedia('(hover: hover) and (pointer: fine)').matches &&
+    !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (canWalk) {
+    let lastX = null;
+    let lastY = null;
+    let side = 1;
+    const STRIDE = 26; // px of mouse travel between footprints
+
+    function spawnFootprint(x, y, angleDeg) {
+      const fp = document.createElement('div');
+      fp.className = 'footprint';
+      fp.style.left = (x - 4.5) + 'px';
+      fp.style.top = (y - 7.5) + 'px';
+      fp.style.setProperty('--r', angleDeg + 'deg');
+      document.body.appendChild(fp);
+      requestAnimationFrame(() => requestAnimationFrame(() => fp.classList.add('fade')));
+      setTimeout(() => fp.remove(), 1400);
+    }
+
+    window.addEventListener('mousemove', (e) => {
+      if (lastX === null) {
+        lastX = e.clientX;
+        lastY = e.clientY;
+        return;
+      }
+      const dx = e.clientX - lastX;
+      const dy = e.clientY - lastY;
+      const dist = Math.hypot(dx, dy);
+      if (dist > STRIDE) {
+        const travelAngle = (Math.atan2(dy, dx) * 180) / Math.PI;
+        const perp = Math.atan2(dy, dx) + Math.PI / 2;
+        const offset = 4 * side;
+        const px = e.clientX + Math.cos(perp) * offset;
+        const py = e.clientY + Math.sin(perp) * offset;
+        spawnFootprint(px, py, travelAngle + 90);
+        side *= -1;
+        lastX = e.clientX;
+        lastY = e.clientY;
+      }
+    });
+  }
 </script>
 
 </body>
