@@ -9,7 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --paper: #FAF7F1;
+    --paper: #F1E9D8;
     --ink: #33322E;
     --muted: #8F8A7C;
     --accent: #6E8259;
@@ -24,7 +24,9 @@
   }
 
   body {
-    background: var(--paper);
+    background-color: var(--paper);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.035 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
     color: var(--ink);
     font-family: 'Raleway', -apple-system, sans-serif;
     font-weight: 400;
@@ -67,13 +69,18 @@
     text-decoration: underline;
     text-decoration-color: var(--hairline);
     text-underline-offset: 2px;
-    transition: text-decoration-color 0.2s ease, color 0.2s ease;
+    display: inline-block;
+    transform-origin: left center;
+    transition: text-decoration-color 0.25s ease, color 0.25s ease,
+      transform 0.25s ease, text-shadow 0.25s ease;
   }
 
   .bio a:hover,
   .bio a:focus-visible {
     color: var(--accent);
     text-decoration-color: var(--accent);
+    transform: translateX(2px) scale(1.03);
+    text-shadow: 0 3px 12px rgba(110, 130, 89, 0.3);
   }
 
   .links {
@@ -91,13 +98,17 @@
     color: var(--ink);
     font-weight: 400;
     font-size: 16px;
-    transition: color 0.2s ease, padding-left 0.2s ease;
+    transform-origin: left center;
+    transition: color 0.25s ease, padding-left 0.25s ease,
+      transform 0.25s ease, text-shadow 0.25s ease;
   }
 
   a.row:hover,
   a.row:focus-visible {
     color: var(--accent);
     padding-left: 6px;
+    transform: scale(1.015);
+    text-shadow: 0 3px 12px rgba(110, 130, 89, 0.25);
   }
 
   a.row:focus-visible {
@@ -117,8 +128,19 @@
     transform: translateX(3px);
   }
 
+  .row--disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  .row--disabled .arrow {
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 300;
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    .row, .arrow { transition: none; }
+    .row, .arrow, .bio a { transition: none; }
   }
 
   @media (max-width: 420px) {
@@ -133,13 +155,12 @@
   <main>
     <h1>Valerio Marco Maugeri</h1>
     <p class="bio">
-      Politics student at <a href="https://www.kcl.ac.uk/" target="_blank" rel="noopener">King&rsquo;s College London</a>.
+      Politics student at <a href="https://www.kcl.ac.uk/sspp/" target="_blank" rel="noopener">King&rsquo;s College London</a>.
       Interested in markets, equity research, and the processes that help companies evolve.
     </p>
     <p class="bio">
-      Interned in M&amp;A at <a href="https://www.beanpartners.com/" target="_blank" rel="noopener">Bean Partners</a>,
-      and now moving into capital advisory at <a href="https://malahidepartners.com/" target="_blank" rel="noopener">Malahide Partners</a>.
-      Wrote stock pitches at King&rsquo;s Capital, and I run <a href="https://alpha-intelligence-ten.vercel.app/" target="_blank" rel="noopener">Alpha Intelligence</a>, an AI-themed portfolio.
+      Interned in M&amp;A at <a href="https://www.beanpartners.com/" target="_blank" rel="noopener">Bean Partners</a> this summer.
+      Wrote stock pitches at <a href="https://www.kingscapital.org/" target="_blank" rel="noopener">King&rsquo;s Capital</a>, and I run <a href="https://alpha-intelligence-ten.vercel.app/" target="_blank" rel="noopener">Alpha Intelligence</a>, a paper-traded, AI-themed portfolio.
     </p>
     <p class="bio">
       Co-founded <a href="https://substack.com/@worthknowingequities" target="_blank" rel="noopener">Worth Knowing</a>,
