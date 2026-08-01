@@ -37,6 +37,24 @@
     padding: 48px 20px;
   }
 
+  .cursor-shade {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0;
+    mix-blend-mode: multiply;
+    background: radial-gradient(160px circle at var(--x, 50%) var(--y, 40%), rgba(51, 50, 46, 0.16), transparent 70%);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .cursor-shade { opacity: 1; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cursor-shade { display: none; }
+  }
+
   .page {
     position: relative;
     z-index: 1;
@@ -153,6 +171,8 @@
 </head>
 <body>
 
+<div class="cursor-shade"></div>
+
 <div class="page">
   <main>
     <h1>Valerio Marco Maugeri</h1>
@@ -182,6 +202,14 @@
     </nav>
   </main>
 </div>
+
+<script>
+  const shade = document.querySelector('.cursor-shade');
+  window.addEventListener('mousemove', (e) => {
+    shade.style.setProperty('--x', e.clientX + 'px');
+    shade.style.setProperty('--y', e.clientY + 'px');
+  });
+</script>
 
 </body>
 </html>
