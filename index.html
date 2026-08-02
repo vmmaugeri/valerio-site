@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Valerio Marco Maugeri</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👣</text></svg>">
+<meta name="description" content="Valerio Marco Maugeri — Politics student at King's College London, interested in markets, equity research, and the processes that help companies evolve.">
+<meta property="og:title" content="Valerio Marco Maugeri">
+<meta property="og:description" content="Politics student at King's College London, interested in markets, equity research, and the processes that help companies evolve.">
+<meta property="og:type" content="profile">
+<meta name="theme-color" content="#F7F1E3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -17,6 +23,11 @@
   }
 
   * { box-sizing: border-box; }
+
+  ::selection {
+    background: var(--accent);
+    color: var(--paper);
+  }
 
   html, body {
     margin: 0;
@@ -37,6 +48,30 @@
     padding: 48px 20px;
   }
 
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .footprint {
+    position: fixed;
+    width: 9px;
+    height: 15px;
+    border-radius: 50% / 60% 60% 40% 40%;
+    background: rgba(51, 50, 46, 0.15);
+    mix-blend-mode: multiply;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.85;
+    transform: rotate(var(--r, 0deg)) scale(1);
+    transition: opacity 1.3s ease, transform 1.3s ease;
+  }
+
+  .footprint.fade {
+    opacity: 0;
+    transform: rotate(var(--r, 0deg)) scale(0.6);
+  }
+
   .page {
     position: relative;
     z-index: 1;
@@ -51,6 +86,7 @@
     letter-spacing: -0.01em;
     margin: 0 0 28px;
     color: var(--ink);
+    animation: fadeUp 0.7s ease both;
   }
 
   .bio {
@@ -59,7 +95,12 @@
     line-height: 1.75;
     color: var(--ink);
     margin: 0 0 18px;
+    animation: fadeUp 0.7s ease both;
   }
+
+  .bio:nth-of-type(1) { animation-delay: 0.08s; }
+  .bio:nth-of-type(2) { animation-delay: 0.16s; }
+  .bio:nth-of-type(3) { animation-delay: 0.24s; }
 
   .bio:last-of-type {
     margin-bottom: 40px;
@@ -85,9 +126,14 @@
     text-shadow: 0 2px 10px rgba(110, 130, 89, 0.22);
   }
 
+  .bio a:active {
+    transform: scale(0.985);
+  }
+
   .links {
     display: flex;
     flex-direction: column;
+    animation: fadeUp 0.7s ease 0.32s both;
   }
 
   .row {
@@ -118,6 +164,10 @@
     outline-offset: -2px;
   }
 
+  a.row:active {
+    transform: scale(0.995);
+  }
+
   .arrow {
     color: var(--muted);
     transition: transform 0.2s ease, color 0.2s ease;
@@ -143,6 +193,7 @@
 
   @media (prefers-reduced-motion: reduce) {
     .row, .arrow, .bio a { transition: none; }
+    h1, .bio, .links { animation: none; }
   }
 
   @media (max-width: 420px) {
@@ -182,6 +233,52 @@
     </nav>
   </main>
 </div>
+
+<script>
+  const canWalk =
+    window.matchMedia('(hover: hover) and (pointer: fine)').matches &&
+    !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (canWalk) {
+    let lastX = null;
+    let lastY = null;
+    let side = 1;
+    const STRIDE = 26; // px of mouse travel between footprints
+
+    function spawnFootprint(x, y, angleDeg) {
+      const fp = document.createElement('div');
+      fp.className = 'footprint';
+      fp.style.left = (x - 4.5) + 'px';
+      fp.style.top = (y - 7.5) + 'px';
+      fp.style.setProperty('--r', angleDeg + 'deg');
+      document.body.appendChild(fp);
+      requestAnimationFrame(() => requestAnimationFrame(() => fp.classList.add('fade')));
+      setTimeout(() => fp.remove(), 1400);
+    }
+
+    window.addEventListener('mousemove', (e) => {
+      if (lastX === null) {
+        lastX = e.clientX;
+        lastY = e.clientY;
+        return;
+      }
+      const dx = e.clientX - lastX;
+      const dy = e.clientY - lastY;
+      const dist = Math.hypot(dx, dy);
+      if (dist > STRIDE) {
+        const travelAngle = (Math.atan2(dy, dx) * 180) / Math.PI;
+        const perp = Math.atan2(dy, dx) + Math.PI / 2;
+        const offset = 4 * side;
+        const px = e.clientX + Math.cos(perp) * offset;
+        const py = e.clientY + Math.sin(perp) * offset;
+        spawnFootprint(px, py, travelAngle + 90);
+        side *= -1;
+        lastX = e.clientX;
+        lastY = e.clientY;
+      }
+    });
+  }
+</script>
 
 </body>
 </html>
