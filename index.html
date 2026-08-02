@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Valerio Marco Maugeri</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👣</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📈</text></svg>">
 <meta name="description" content="Valerio Marco Maugeri — Politics student at King's College London, interested in markets, equity research, and the processes that help companies evolve.">
 <meta property="og:title" content="Valerio Marco Maugeri">
 <meta property="og:description" content="Politics student at King's College London, interested in markets, equity research, and the processes that help companies evolve.">
@@ -55,14 +55,14 @@
 
   .footprint {
     position: fixed;
-    width: 9px;
-    height: 15px;
+    width: 5px;
+    height: 8px;
     border-radius: 50% / 60% 60% 40% 40%;
-    background: rgba(51, 50, 46, 0.15);
+    background: rgba(51, 50, 46, 0.05);
     mix-blend-mode: multiply;
     pointer-events: none;
     z-index: 0;
-    opacity: 0.85;
+    opacity: 0.55;
     transform: rotate(var(--r, 0deg)) scale(1);
     transition: opacity 1.3s ease, transform 1.3s ease;
   }
@@ -70,6 +70,33 @@
   .footprint.fade {
     opacity: 0;
     transform: rotate(var(--r, 0deg)) scale(0.6);
+  }
+
+  .market-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid var(--hairline);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    animation: fadeUp 0.7s ease 0.4s both;
+  }
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--muted);
+    flex-shrink: 0;
+  }
+
+  .status-dot.open {
+    background: var(--accent);
   }
 
   .page {
@@ -232,9 +259,45 @@
       </a>
     </nav>
   </main>
+
+  <footer class="market-status">
+    <span class="status-dot" id="statusDot"></span>
+    <span id="marketStatusText">NYSE &mdash;</span>
+  </footer>
 </div>
 
 <script>
+  // --- Market status (real NYSE hours, via America/New_York time) ---
+  function getNYParts() {
+    const fmt = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/New_York',
+      weekday: 'short',
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: false,
+    });
+    const parts = fmt.formatToParts(new Date());
+    const map = {};
+    parts.forEach((p) => (map[p.type] = p.value));
+    return { weekday: map.weekday, hour: parseInt(map.hour, 10), minute: parseInt(map.minute, 10) };
+  }
+
+  function isMarketOpen() {
+    const { weekday, hour, minute } = getNYParts();
+    if (weekday === 'Sat' || weekday === 'Sun') return false;
+    const minutesNow = hour * 60 + minute;
+    return minutesNow >= 9 * 60 + 30 && minutesNow < 16 * 60;
+  }
+
+  const statusText = document.getElementById('marketStatusText');
+  const statusDot = document.getElementById('statusDot');
+  if (statusText) {
+    const open = isMarketOpen();
+    statusText.textContent = open ? 'NYSE open' : 'NYSE closed';
+    if (statusDot) statusDot.classList.toggle('open', open);
+  }
+
+  // --- Footprint trail ---
   const canWalk =
     window.matchMedia('(hover: hover) and (pointer: fine)').matches &&
     !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -248,8 +311,8 @@
     function spawnFootprint(x, y, angleDeg) {
       const fp = document.createElement('div');
       fp.className = 'footprint';
-      fp.style.left = (x - 4.5) + 'px';
-      fp.style.top = (y - 7.5) + 'px';
+      fp.style.left = (x - 2.5) + 'px';
+      fp.style.top = (y - 4) + 'px';
       fp.style.setProperty('--r', angleDeg + 'deg');
       document.body.appendChild(fp);
       requestAnimationFrame(() => requestAnimationFrame(() => fp.classList.add('fade')));
