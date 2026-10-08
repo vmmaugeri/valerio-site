@@ -40,6 +40,21 @@ If Valerio asks for a visual tweak on one site "to match the other," check
 rather than guessing — the two have drifted before (e.g. `index (1).html`'s
 stale `--paper: #FAF7F1` vs. the live `#F7F1E3`).
 
+## Light / dark theme
+
+- A pill switch sits top right above the name (knob left = light, right = dark, `role="switch"`), the same
+  control and the same dark palette as the `alpha-intelligence` portfolio (`--paper #302C25` etc.). The light
+  palette is unchanged.
+- Colours live as CSS variables: light on `:root`, dark on `:root[data-theme="dark"]`. **Don't hard-code a
+  colour** in the CSS. The cursor footprints and the hover glows have their own variables (`--footprint`,
+  `--footprint-blend`, `--glow-bio`, `--glow-row`), because the footprints darken the page in light mode
+  (multiply) and need to lighten it in dark mode (screen).
+- The theme is picked by a small inline script in `<head>` before the first paint: the saved choice
+  (`localStorage` key `vm-theme`, in try/catch) or else the visitor's system setting. Until someone clicks the
+  switch the page follows the system setting live. The browser-bar colour (`meta theme-color`) follows too.
+- The choice is **per site**: this page and the portfolio are different origins, so they do not share
+  `localStorage`. Each follows the system setting until you switch it there.
+
 ## Content notes
 
 - Bio text, job/internship mentions, and link list are all real biographical

@@ -4,6 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Valerio Marco Maugeri</title>
+<script>
+  // Picks the colour theme before the page paints, so there is no flash: the saved choice if there is one,
+  // otherwise the visitor's system setting.
+  (function () {
+    var theme = null;
+    try { theme = localStorage.getItem('vm-theme'); } catch (e) {}
+    if (theme !== 'light' && theme !== 'dark') {
+      theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    document.documentElement.setAttribute('data-theme', theme);
+  })();
+</script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📈</text></svg>">
 <meta name="description" content="Valerio Marco Maugeri — Politics student at King's College London, interested in markets, equity research, and the processes that help companies evolve.">
 <meta property="og:title" content="Valerio Marco Maugeri">
@@ -20,6 +32,25 @@
     --muted: #8F8A7C;
     --accent: #6E8259;
     --hairline: #E6E1D4;
+    --footprint: rgba(51, 50, 46, 0.09);
+    --footprint-blend: multiply;
+    --glow-bio: rgba(110, 130, 89, 0.22);
+    --glow-row: rgba(110, 130, 89, 0.18);
+    color-scheme: light;
+  }
+
+  /* Dark theme: the same cream turned down to a warm dark brown, matching the Alpha Intelligence portfolio. */
+  :root[data-theme="dark"] {
+    --paper: #302C25;
+    --ink: #EEE7D6;
+    --muted: #A8A292;
+    --accent: #9DB483;
+    --hairline: #433E34;
+    --footprint: rgba(238, 231, 214, 0.08);
+    --footprint-blend: screen;
+    --glow-bio: rgba(157, 180, 131, 0.2);
+    --glow-row: rgba(157, 180, 131, 0.16);
+    color-scheme: dark;
   }
 
   * { box-sizing: border-box; }
@@ -58,8 +89,8 @@
     width: 6px;
     height: 9px;
     border-radius: 50% / 60% 60% 40% 40%;
-    background: rgba(51, 50, 46, 0.09);
-    mix-blend-mode: multiply;
+    background: var(--footprint);
+    mix-blend-mode: var(--footprint-blend);
     pointer-events: none;
     z-index: 0;
     opacity: 0.65;
@@ -77,6 +108,53 @@
     z-index: 1;
     width: 100%;
     max-width: 420px;
+  }
+
+  .top {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+    animation: fadeUp 0.7s ease both;
+  }
+
+  .theme-toggle {
+    position: relative;
+    width: 50px;
+    height: 28px;
+    padding: 0;
+    background: transparent;
+    border: 1.5px solid var(--ink);
+    border-radius: 14px;
+    cursor: pointer;
+  }
+
+  .theme-knob {
+    position: absolute;
+    top: 50%;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    margin-top: -9px;
+    border-radius: 50%;
+    background: var(--ink);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  :root[data-theme="dark"] .theme-knob {
+    transform: translateX(23px);
+  }
+
+  .theme-toggle:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  /* While the theme switches, colours ease over instead of snapping (script adds .theme-fade for a moment). */
+  @media (prefers-reduced-motion: no-preference) {
+    .theme-fade,
+    .theme-fade *:not(.theme-knob) {
+      transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease !important;
+    }
   }
 
   h1 {
@@ -144,7 +222,7 @@
     color: var(--accent);
     text-decoration-color: var(--accent);
     transform: translateX(1px) scale(1.015);
-    text-shadow: 0 2px 10px rgba(110, 130, 89, 0.22);
+    text-shadow: 0 2px 10px var(--glow-bio);
   }
 
   .bio a:active {
@@ -177,7 +255,7 @@
     color: var(--accent);
     padding-left: 3px;
     transform: scale(1.008);
-    text-shadow: 0 2px 10px rgba(110, 130, 89, 0.18);
+    text-shadow: 0 2px 10px var(--glow-row);
   }
 
   a.row:focus-visible {
@@ -214,7 +292,7 @@
 
   @media (prefers-reduced-motion: reduce) {
     .row, .arrow, .bio a { transition: none; }
-    h1, .bio, .links { animation: none; }
+    h1, .bio, .links, .top { animation: none; }
   }
 
   @media (max-width: 420px) {
@@ -227,6 +305,9 @@
 
 <div class="page">
   <main>
+    <div class="top">
+      <button class="theme-toggle" id="themeToggle" type="button" role="switch" aria-checked="false" aria-label="Dark mode" title="Light / dark"><span class="theme-knob"></span></button>
+    </div>
     <h1>Valerio Marco Maugeri</h1>
     <div class="email"><a href="mailto:vmmaugeri@gmail.com">vmmaugeri@gmail.com</a></div>
     <p class="bio">
@@ -260,6 +341,49 @@
 </div>
 
 <script>
+  // --- Light / dark switch ---
+  // Follows the system setting until the visitor clicks the switch, then remembers their choice.
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('themeToggle');
+    var meta = document.querySelector('meta[name="theme-color"]');
+    var fadeTimer = null;
+
+    function saved() {
+      try {
+        var t = localStorage.getItem('vm-theme');
+        return t === 'light' || t === 'dark' ? t : null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function apply(theme, save) {
+      if (!window.matchMedia || !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        root.classList.add('theme-fade');
+        clearTimeout(fadeTimer);
+        fadeTimer = setTimeout(function () { root.classList.remove('theme-fade'); }, 500);
+      }
+      root.setAttribute('data-theme', theme);
+      button.setAttribute('aria-checked', theme === 'dark' ? 'true' : 'false');
+      if (meta) meta.setAttribute('content', theme === 'dark' ? '#302C25' : '#F7F1E3');
+      if (save) {
+        try { localStorage.setItem('vm-theme', theme); } catch (e) {}
+      }
+    }
+
+    var current = function () { return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light'; };
+    button.setAttribute('aria-checked', current() === 'dark' ? 'true' : 'false');
+    if (meta) meta.setAttribute('content', current() === 'dark' ? '#302C25' : '#F7F1E3');
+    button.addEventListener('click', function () { apply(current() === 'dark' ? 'light' : 'dark', true); });
+
+    if (window.matchMedia) {
+      var media = window.matchMedia('(prefers-color-scheme: dark)');
+      var onChange = function (e) { if (!saved()) apply(e.matches ? 'dark' : 'light', false); };
+      if (media.addEventListener) media.addEventListener('change', onChange);
+    }
+  })();
+
   // --- Footprint trail ---
   const canWalk =
     window.matchMedia('(hover: hover) and (pointer: fine)').matches &&
